@@ -8,19 +8,22 @@ const valuesMap = {
     2: [true, true] // letter in correct position
 }
 
-// Get full list of inputtable words (there are some words missing from allowed words but also some duplication between lists)
-function initialiseInputtable() {
-    distinctInputs = allowedWords
+const allInputs = getInputs()
+
+//
+function getInputs() {
+    let inputs = allowedWords
     for (word of solutions) {
-        if(!distinctInputs.includes(word)) {
-            distinctInputs.push(word)
+        if(!inputs.includes(word)) {
+            inputs.push(word)
         }
     }
+    return inputs
 }
 
 
 // score word on exact letter position matches and general letter matches
-function scoreWord(word, solutions) {
+function scoreWord(word, solutions, isSearch) {
     result = {positionMatches: 0, letterMatches: 0}
     word = [...new Set(word)]
     if (word.length < 5) {
@@ -28,7 +31,8 @@ function scoreWord(word, solutions) {
     }
     for (solution of solutions) {
         for (let i = 0; i < 5; i++) {
-            if (solution.includes(word[i])) {
+            // second condition basically says we don't count already placed characters when scoring words for searching because we want to increase our info, not re-use existing knowledge. When looking for solutions though we do want to include this in the score
+            if (solution.includes(word[i]) && (!isSearch || !characterIsPlaced(word[i]))) {
                 if (solution[i] === word[i]) {
                     result.positionMatches++
                     continue
@@ -42,13 +46,18 @@ function scoreWord(word, solutions) {
     return result
 }
 
+// calculate the value of a word's score based on letter matches and position matches
+function scoreValue(score) {
+    return score.letterMatches + 5 * score.positionMatches
+}
+
 // find the next best word to enter based on the best chance of getting matches and the best chance of eliminating more words
-function findNextBestWord(options, solutions) {
+function findNextBestWord(options, solutions, isSearch) {
     let wordScores = {}
     for (word of options) {
-        wordScores[word] = scoreWord(word, solutions)
+        wordScores[word] = scoreWord(word, solutions, isSearch)
     }
-    let sortedScores = Object.entries(wordScores).sort((a,b) => {return b[1].letterMatches + 5*b[1].positionMatches - a[1].letterMatches - 5*a[1].positionMatches})
+    let sortedScores = Object.entries(wordScores).sort((a,b) => {return scoreValue(b[1]) - scoreValue(a[1])})
     return sortedScores[0]
 }
 
@@ -84,46 +93,147 @@ function filterSolutions(solutions) {
     return solutions
 }
 
-// helper method to check if word has already used characters in it
-function wordIncludesUsedCharacters(word) {
-    let used = info.map(i => i.character)
-    return used.some(char => word.includes(char))
+// helper method to check if a character has been placed in the correct position
+function characterIsPlaced(char) {
+    let placed = info.filter(i => i.correctPosition).map(i => i.character)
+    return placed.includes(char)
 }
 
-// filters the specified input list to remove any words with characters that have already been entered
-function filterInputs(inputs) {
-    return inputs.filter(input => {
-        return !wordIncludesUsedCharacters(input)
-    })
+// gets the next best word to enter for eliminating options based on the current inputs and solutions
+function getNextSearch() {
+    return findNextBestWord(allInputs, currentSolutions, true)
+}
+
+// gets the next best solution guess based on matching the most remaining options
+function getNextSolution() {
+    return findNextBestWord(currentSolutions, currentSolutions, false)
 }
 
 // adds a word to the info array and updates the solutions and inputs lists
 function addWord(word, values) {
     addWordToInfo(word, values)
-    distinctInputs = filterInputs(distinctInputs)
     currentSolutions = filterSolutions(currentSolutions)
 }
 
-// gets the next best word to enter for eliminating options based on the current inputs and solutions
-function getNextSearch() {
-    return findNextBestWord(distinctInputs, currentSolutions)
+// print the next suggested word to the console
+function suggestedWord(threshold) {
+    if (currentSolutions.length < threshold) {
+        return getNextSolution()[0]
+    } else {
+        return getNextSearch()[0]
+    }
 }
 
 // can be called to restart
-function reset() {
-    initialiseInputtable()
+function initialise(threshold) {
     info = []
     currentSolutions = solutions
+    guessThreshold = threshold ? threshold : 3
 }
 
 // initialise modifiable shared variables
-let info = []
-let distinctInputs = []
-let currentSolutions = solutions
-initialiseInputtable()
+let info, currentSolutions, guessThreshold
+initialise()
 
-// HOW TO USE
+// HOW TO USE FOR PLAYING
 // copy and paste entire script into JS executable then follow below steps. The allowed words and solutions lists might be updated occasionally, these can be found in the website's source code
-// 1. run method getNextSearch() and enter the word into the game (first word with current solutions and available inputs should be 'soare')
+// 1. run method suggestedWord() and enter the word into the game (first word with current solutions and available inputs should be 'soare')
 // 2. run method addWord() with the first parameter being the word from step 1 and the second parameter being a list of values taken from the valuesMap (map this letter for letter)
-// 3. check currentSolutions array. If there are 5 or less options available, it's probably guessing time. Pick a solution by running findNextBestWord(currentSolutions, currentSolutions) and go to step 2. If there are more than 5 solutions go to step 1 to refine the options
+// 3. if not complete, go to step 1, if no suggestions then call reset()
+
+
+//TESTING HOW EFFECTIVE THE MACHINE IS AT GUESSING
+
+// works out the mapping values for an inputted work given the target word is known
+function getMappingValues(input, target) {
+    let values = []
+    for (let i = 0; i < 5; i++) {
+        if (input[i] === target[i]) {
+            values.push(2)
+        } else if (target.includes(input[i])) {
+            values.push(1)
+        } else {
+            values.push(0)
+        }
+    }
+    return values
+}
+
+// picks a number of target words from the possible solutions and tracks how well the above script works
+function evaluate(start, end, threshold) {
+    if (!start) {
+        start = 0
+    }
+    if (!end) {
+        end = solutions.length
+    } 
+    if (!threshold) {
+        threshold = 10
+    }
+    let attemptTracker = {
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0,
+        6: 0,
+        fails: 0
+    }
+    let failedWords = []
+    let singleWords = []
+    let records = []
+    for (let i = start; i < end; i++) {
+        attempts = solveWord(solutions[i], threshold)
+        if (attempts > 6) {
+            failedWords.push(solutions[i])
+        }
+        records.push(attempts)
+        if (i%50 === 0) {
+            console.log(i + ' solutions evaluated')
+        }
+    }
+    for (record of records) {
+        if (record === 1) {
+            attemptTracker[1]++
+        }
+        if (record === 2) {
+            attemptTracker[2]++
+        }
+        if (record === 3) {
+            attemptTracker[3]++
+        }
+        if (record === 4) {
+            attemptTracker[4]++
+        }
+        if (record === 5) {
+            attemptTracker[5]++
+        }
+        if (record === 6) {
+            attemptTracker[6]++
+        }
+        if (record > 6) {
+            attemptTracker.fails++
+        }
+    }
+    console.log('Attempts distribution: ', attemptTracker)
+    console.log('Failed Words: ', failedWords)
+}
+
+function solveWord(target, threshold) {
+    let attempts = 1
+    initialise()
+    let lastWord = 'soare'
+    addWord(lastWord, getMappingValues(lastWord, target))
+    while(lastWord !== target || currentSolutions.length > 1) {
+        lastWord = suggestedWord(threshold)
+        addWord(lastWord, getMappingValues(lastWord, target))
+        attempts++
+    }
+    return attempts
+}
+
+
+//evaluate(0,0,10) yields {"1": 0,"2": 98,"3": 935,"4": 941,"5": 251,"6": 67,"fails": 23} 
+//evaluate(0,0,5) yields  {"1": 0,"2": 81,"3": 926,"4": 983,"5": 262,"6": 55,"fails": 8} Fails = ['taunt', 'catch', 'fatty', 'holly', 'hunch', 'brook', 'purer', 'willy']
+//evaluate(0,0,3) yields {"1": 0,"2": 71,"3": 831,"4": 1104,"5": 280,"6": 29,"fails": 0}
+//evaluate(0,0,4) yields {"1": 0,"2": 75,"3": 896,"4": 1034,"5": 267,"6": 41,"fails": 2} Fails = ['taunt', 'holly']
