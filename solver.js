@@ -14,7 +14,7 @@ const valuesMap = {
     2: [true, true] // letter in correct position
 }
 
-const thresholdMap = {0: 3, 1: 3, 2: 3, 3: 3, 4: 3, 5: 3}
+let thresholdMap = {0: 3, 1: 3, 2: 3, 3: 3, 4: 3, 5: 3}
 
 const allInputs = getInputs()
 
@@ -109,7 +109,6 @@ function characterIsPlaced(char) {
 // gets the next best word to enter for eliminating options based on the current inputs and solutions
 function getNextSearch() {
     let bestSearch = findNextBestWord(allInputs, currentSolutions, true)
-    console.log(bestSearch)
     // can be the case that the search term is useless, easier to run this check than modify the finder
     if (scoreValue(bestSearch[1]) === 0) {
         bestSearch = getNextSolution()
@@ -223,6 +222,7 @@ function evaluate(start, end) {
     }
     console.log('Attempts distribution: ', attemptTracker)
     console.log('Failed Words: ', failedWords)
+    return {attemptTracker, failedWords}
 }
 
 // helper method broken out for additional debugging and intrigue
@@ -247,25 +247,27 @@ function solveWord(target, verbose) {
     return attempts
 }
 
-// ANALYSIS:
-//evaluations with fixed threshold limit (deprecated but can be recreated by inputting a threshold map with the same value for each attempt)
-//evaluate(0,0,10) yields {"1": 0,"2": 98,"3": 935,"4": 941,"5": 251,"6": 67,"fails": 23} 
-//evaluate(0,0,5) yields  {"1": 0,"2": 81,"3": 926,"4": 983,"5": 262,"6": 55,"fails": 8} Fails = ['taunt', 'catch', 'fatty', 'holly', 'hunch', 'brook', 'purer', 'willy']
-//evaluate(0,0,3) yields {"1": 0,"2": 71,"3": 831,"4": 1104,"5": 280,"6": 29,"fails": 0}
-//evaluate(0,0,4) yields {"1": 0,"2": 75,"3": 896,"4": 1034,"5": 267,"6": 41,"fails": 2} Fails = ['taunt', 'holly']
+// runs lots of evaluations for analysis
+function thresholdMapTester() {
+    let results = []
+    let evaluation
+    for(let primary = 3; primary < 6; primary++) {
+        for (let secondary = 2; secondary < 5; secondary++) {
+            if (primary === secondary) {
+                continue
+            }
+            thresholdMap = {0: primary, 1: primary, 2: primary, 3: primary, 4: secondary, 5: secondary} 
+            evaluation = evaluate()
+            results.push({thresholdMap, evaluation})
+            thresholdMap = {0: primary, 1: primary, 2: primary, 3: secondary, 4: secondary, 5: secondary} 
+            evaluation = evaluate()
+            results.push({thresholdMap, evaluation})
+        }
+    }
+    return results
+}
 
-//evaluations with flexible threshold limit
-//map {0: 10, 1: 10, 2: 5, 3: 3, 4: 3, 5: 3} results {"1": 0,"2": 98,"3": 893,"4": 951,"5": 344,"6": 29,"fails": 0}
-//map {0: 10, 1: 5, 2: 5, 3: 3, 4: 3, 5: 3} results {"1": 0,"2": 81,"3": 926,"4": 940,"5": 339,"6": 29,"fails": 0}
-//map {0: 10, 1: 10, 2: 10, 3: 3, 4: 3, 5: 3} results {"1": 0,"2": 98,"3": 935,"4": 878,"5": 375,"6": 29,"fails": 0}
-//map {0: 10, 1: 10, 2: 4, 3: 4, 4: 2, 5: 2} results {"1": 0,"2": 98,"3": 852,"4": 1052,"5": 230,"6": 75,"fails": 8} Fails = ['hatch', 'chill', 'catch', 'excel', 'piper', 'riper', 'chili', 'expel']
-//map {0: 10, 1: 4, 2: 4, 3: 4, 4: 2, 5: 2} results 
-
-//evaluations after change to criteria on finding next word
-//map {0: 10, 1: 4, 2: 4, 3: 3, 4: 2, 5: 2} results {"1": 0,"2": 75,"3": 896,"4": 1009,"5": 289,"6": 46,"fails": 0}
-//map {0: 4, 1: 4, 2: 4, 3: 4, 4: 4, 5: 4} results {"1": 0,"2": 75,"3": 896,"4": 1034,"5": 267,"6": 41,"fails": 2} Fails = ['taunt', 'holly']
-
-// Best two solutions appear to be 
+// ANALYSIS: Best solutions appear to be setting threshold to 3 in later guesses. Varying the threshold so that it's higher in earlier attempts (ie/ more chance of going for answers early) flattens the distribution with roughly equal amounts of centre points going to the extremes.
 // {0: 3, 1: 3, 2: 3, 3: 3, 4: 3, 5: 3}     ie/ constant threshold 3    distribution {"1": 0,"2": 71,"3": 831,"4": 1104,"5": 280,"6": 29,"fails": 0}    slightly safer
-// {0: 10, 1: 4, 2: 4, 3: 3, 4: 2, 5: 2}    ie/ variable threshold      distribution {"1": 0,"2": 75,"3": 896,"4": 1009,"5": 289,"6": 46,"fails": 0}    more risky
-
+// {0: 4, 1: 4, 2: 4, 3: 3, 4: 3, 5: 3}     ie/ variable threshold      distribution {"1": 0,"2": 75,"3": 896,"4": 1009,"5": 306,"6": 29,"fails": 0}    tad more risky 
+// {0: 5, 1: 5, 2: 5, 3: 3, 4: 3, 5: 3}     ie/ variable threshold      distribution {"1": 0,"2": 81,"3": 926,"4": 940, "5": 339,"6": 29,"fails": 0}    more risky
