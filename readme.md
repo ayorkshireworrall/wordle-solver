@@ -13,7 +13,7 @@ Table of contents
 * [Strategy](#strategy)
 * [Playing Using The Script](#playing-using-the-script)
 * [Testing And Analysis](#testing-and-analysis)
-* [Areas For Improvement](#areas for improvement)
+* [Areas For Improvement](#areas-for-improvement)
 
 Aim
 -------
@@ -53,17 +53,17 @@ The methods defined at the end of the file are used to evaluate how well the mod
 
 Running ```thresholdMapTester()``` repeats the ```evaluate``` method but changing the thresholdMap value so that multiple distributions can be created and compared. Below are some examples taken from analysis where the criteria was to maximise the lower number of guesses while ensuring that the script never failed to guess any words.
 
-<img src="https://raw.githubusercontent.com/ayorkshireworrall/wordle-solver/working/figures/threshold-map-a.png" alt="Figure 1">
+<img src="https://raw.githubusercontent.com/ayorkshireworrall/wordle-solver/main/figures/threshold-map-a.png" alt="Figure 1">
 
 <em>Figure 1a. The distribution for the threshold map {0: 3, 1: 3, 2: 3, 3: 3, 4: 3, 5: 3} (the default thresholdMap)</em>
 
-<img src="https://raw.githubusercontent.com/ayorkshireworrall/wordle-solver/working/figures/threshold-map-b.png" alt="Figure 1b">
+<img src="https://raw.githubusercontent.com/ayorkshireworrall/wordle-solver/main/figures/threshold-map-b.png" alt="Figure 1b">
 
 <em>Figure 1b. The distribution for the threshold map {0: 4, 1: 4, 2: 4, 3: 3, 4: 3, 5: 3}</em>
 
 
 
-<img src="https://raw.githubusercontent.com/ayorkshireworrall/wordle-solver/working/figures/threshold-map-c.png" alt="Figure 1c">
+<img src="https://raw.githubusercontent.com/ayorkshireworrall/wordle-solver/main/figures/threshold-map-c.png" alt="Figure 1c">
 
 <em>Figure 1c. The distribution for the threshold map {0: 5, 1: 5, 2: 5, 3: 3, 4: 3, 5: 3}</em>
 
