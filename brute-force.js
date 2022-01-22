@@ -422,13 +422,17 @@ function rateGuesses(guesses, targetSolution) {
         console.log('Your Guess: ', guess)
         let guessScores = scoreWordBruteForce(guess, currentSolutions)
         console.log('Your Guess Scores: ', guessScores)
-        console.log('Remaining Solutions After Your Guess', getSolutionsAfterWord(guess, currentSolutions, targetSolution))
+        console.log('Remaining Solutions After Your Guess (for attempt ' + (i + 2) + '): ', getSolutionsAfterWord(guess, currentSolutions, targetSolution))
         let suggestedWord = recommendedWordByMaxScoring(currentSolutions, i + 1)
         console.log('Suggested Word: ', suggestedWord)
         console.log('Suggested Word Scores: ', scoreWordBruteForce(suggestedWord, currentSolutions))
-        console.log('Remaining Solutions After Suggested Word', getSolutionsAfterWord(suggestedWord, currentSolutions, targetSolution))
+        console.log('Remaining Solutions After Suggested Word (for attempt ' + (i + 2) + '): ', getSolutionsAfterWord(suggestedWord, currentSolutions, targetSolution))
         addWord(guess, getMappingValues(guess, targetSolution))
     }
+    console.log('================================================')
+    console.log('Following the optimal path')
+    console.log('================================================')
+    solveWordBruteForce(targetSolution, true)
 }
 
 function recommendedWordByMaxScoring(currentSolutions, attempt) {
