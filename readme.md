@@ -96,7 +96,7 @@ Creating a distribution for all of the brute force calculated guesses seemed to 
 Running the evaulate method yielded the below distribution
 <img src="https://raw.githubusercontent.com/ayorkshireworrall/wordle-solver/main/figures/brute-force.png" alt="Figure 2">
 
-<em>Figure 1c. The distribution for the brute force algorithm</em>
+<em>Figure 2. The distribution for the brute force algorithm</em>
 
 Unsurprisingly this is far better than the original scoring algorithm results, especially towards the later guesses. This was to be expected though because in some cases the suggested word was a fair bit away from optimal. This can be demonstrated by scoring the suggested word in a similar way to the brute force and comparing it to the best scored word according to the brute force algorithm. Even when taking just the best mean, the brute force result tends to have a lower max than the suggested word.
 
