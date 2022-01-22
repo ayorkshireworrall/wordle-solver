@@ -14,10 +14,12 @@ Table of contents
 * [Playing Using The Script](#playing-using-the-script)
 * [Testing And Analysis](#testing-and-analysis)
 * [Areas For Improvement](#areas-for-improvement)
+* [Follow Up](#follow-up)
+* [Evaluating A Game](#evaluating-a-game)
 
 Aim
 -------
-The aim of this project was originally to simply find the best starter word. This followed to the next best word and finally to make the best wordle solver. On the whole it largely succeeds in this aim as discussed in the analysis, but there are weaknesses that can be seen with certain words
+The aim of this project was originally to simply find the best starter word. This followed to the next best word and finally to make the best wordle solver. On the whole it largely succeeds in this aim as discussed in the analysis, but there are weaknesses that can be seen with certain words. This has been analysed retrospectively in the [Follow Up](#follow-up) section by comparing to a simpler but more computationally expensive brute force approach.
 
 
 Strategy
@@ -63,8 +65,6 @@ Running ```thresholdMapTester()``` repeats the ```evaluate``` method but changin
 
 <em>Figure 1b. The distribution for the threshold map {0: 4, 1: 4, 2: 4, 3: 3, 4: 3, 5: 3}</em>
 
-
-
 <img src="https://raw.githubusercontent.com/ayorkshireworrall/wordle-solver/main/figures/threshold-map-c.png" alt="Figure 1c">
 
 <em>Figure 1c. The distribution for the threshold map {0: 5, 1: 5, 2: 5, 3: 3, 4: 3, 5: 3}</em>
@@ -80,3 +80,32 @@ Firstly the script could be made to use brute force rather than an intuitive sco
 A noted area of weakness is the use of repeated letters. The script currently excludes them from search terms on the basis that on the whole they are less likely to yield more information. There have been situations where this appears not necessarily true though and the existing script could be adapted to incorporate this additional information.
 
 Another potential area of improvement would be to apply machine learning to the problem. Rather than scoring, words could be run through a model that takes inputs with number of letters matching exactly, number of letters matching but in the wrong position, number of repeated letters and compare that to the number of eliminations (probably best as a percentage but perhaps could take into account the current guess). This has the advantage of producing a lightweight model to run the script in a similar way to the scoring system, but will have at least been exposed to all brute force solutions.
+
+Follow Up
+-------
+After seeing a couple of results played where the scoring algorithm failed to find a quite obvious optimal word guess, it was clear that some of the areas identified as weaknesses were more severe than first expected. To compare how it held up, a brute force approach was used. There is still scope for changes and probably improvement in the brute force method applied, but it is unlikely these will significantly change the outcomes. As a result, it makes for a good benchmark. Playing with it is not advised (mainly on account of the solution being a cop out and in the author's opinion a lazy waste of computing resources).
+
+The brute force algorithm works by testing each of the inputtable words in turn. It considers each solution from what remains and on the assumption that the working one is correct, looks at how many solutions would remain in the next round if the input is entered. The values for each solution for that input is recorded and once all values have been calculated it flags the mean and maximum number of solutions that entering this input value would leave in the next round. For later rounds it has been assumed that the lowest mean would be the best word to go for, however for the starter word more in depth analysis was done. This highlighted some significant flaws in the scoring system, firstly that 'soare' is not in fact optimal. For the mean, the optimal word came back as 'roate' (with a mean score of 60.42 and a maximum of 195) and for the maximum the optimal word came back as 'aesir' (with a mean score of 69.88 and a maximum of 168). By comparison 'soare' scored a mean of 62.30 and a maximum of 183 so did initially appear to be an excellent compromise so a further search was done to look for other compromise words. By looking at all words with both a mean lower than 70 and a max of 195 or lower the following list of words was determined:
+
+'aesir', 'ariel', 'orate', 'raile', 'raine', 'realo', 'roate', 'soare', 'arise', 'irate', 'arose', 'raise'
+
+Scoring each of these showed that 'raise' was by far the best compromise word with a mean of 61.00 and a maximum equalling the best max of 168. Both values beating the values for 'soare' therefore it would appear that this exposed an immediate flaw in the scoring system.
+
+Creating a distribution for all of the brute force calculated guesses seemed to be a far too computationally expensive task so some optimisations were made as can be seen in the code. The assumption that 'raise' was the best solution was taken. Then, every possible value array that could come out of it was tested to find the second round word that would be guessed when applying the brute force algorithm using the mean. This meant a lookup map was created for each possible value array having a predetermined word to use. Given the value array is always a fixed length of 5 with each item taking a value of 0,1 or 2 there was a maximum of 3^5 = 243 times the second word would be guessed using brute force. Compared to the evaluation method which has to run 2315 solutions, this already saved some resources with the advantage of saving those calculations in any further investigation.
+
+Running the evaulate method yielded the below distribution
+<img src="https://raw.githubusercontent.com/ayorkshireworrall/wordle-solver/main/figures/brute-force.png" alt="Figure 2">
+
+<em>Figure 1c. The distribution for the brute force algorithm</em>
+
+Unsurprisingly this is far better than the original scoring algorithm results, especially towards the later guesses. This was to be expected though because in some cases the suggested word was a fair bit away from optimal. This can be demonstrated by scoring the suggested word in a similar way to the brute force and comparing it to the best scored word according to the brute force algorithm. Even when taking just the best mean, the brute force result tends to have a lower max than the suggested word.
+
+An interesting note is that taking the starting word 'raise' and using the original algorithm seems to yield worse results than using 'soare'. This could be something that tweaking threshold values might resolve but could imply that behind the scenes the original algorithm does not simply look to minimise the solutions in the next go.
+
+Evaluating A Game
+-------
+An interesting side effect of introducing the brute force methods is being able to analyse a player's choices compared to the 'optimal' choices determined by brute force. Included in brute-force.js is a method that will display info on just that. Simply copy and paste the file into a Javascript executable environment and run the method ```rateGuesses()``` inputting the player's guesses as a string array for the first argument and the actual game solution word as the second argument. For example ```rateGuesses(['soare', 'clint', 'mince', 'wince'], 'wince')```.
+
+This will take a bit of time on the second guess as it works out the 'optimal' word by brute force but assuming the player has narrowed the solution set sufficiently it will get through the remaining attempts a bit quicker.
+
+The output will display each attempt followed by the player's guess, the scores (mean and max numbers of values that will be left after all remaining solutions are considered) and the actual remaining solutions in the next attempt. It will also show the same information for the 'optimal' choice. From here a player can evaluate how close to 'optimal' their word choice was and compared to the scores, how lucky their choice was in narrowing down the solution set.
