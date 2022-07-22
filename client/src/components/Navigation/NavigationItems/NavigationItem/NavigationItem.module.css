@@ -1,0 +1,50 @@
+@value colors: "../../../../css/colors.css";
+@value primary1, primary2, tertiary1 from colors;
+
+.NavigationItemToolbar {
+    margin: 10px 0;
+    box-sizing: border-box;
+    display: flex;
+    width: 100%;
+    padding: 10px 0;
+    font-size: inherit;
+}
+
+.NavigationItemToolbar a {
+    display: flex;
+    color: inherit;
+    text-decoration: none;
+    padding: 17px 20px;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.NavigationItemToolbar a:hover {
+    border-bottom: 4px solid tertiary1;
+}
+
+.NavigationItemToolbar a.active {
+    color: tertiary1;
+}
+
+.NavigationItemSideDrawer {
+    box-sizing: border-box;
+    width: 100%;
+    font-size: inherit;
+    padding-right: 15%;
+}
+
+.NavigationItemSideDrawer a {
+    display: inline-block;
+    color: inherit;
+    text-decoration: none;
+    padding: 12px 5px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.NavigationItemSideDrawer a.active {
+    color: tertiary1;
+    border-bottom: 2px solid tertiary1;
+}

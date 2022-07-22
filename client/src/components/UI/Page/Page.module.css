@@ -1,0 +1,10 @@
+.Page {
+    width: 90%;
+    padding-top: 10px;
+    margin: auto;
+}
+
+.Page h1 {
+    font-size: 40px;
+    margin: 0;
+}

@@ -1,0 +1,17 @@
+.Logo {
+    padding: 7px;
+    height: 100%;
+    box-sizing: border-box;
+    border-radius: 5px;
+}
+
+.Logo img {
+    height: 100%;
+}
+
+/* Disable click in desktop view */
+@media(min-width: 500px) {
+    .Logo {
+        pointer-events: none;
+    }
+}

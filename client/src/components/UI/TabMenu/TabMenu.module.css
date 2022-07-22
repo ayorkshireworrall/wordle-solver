@@ -1,0 +1,46 @@
+@value colors: "../../../css/colors.css";
+@value primary1, primary2, tertiary1 from colors;
+
+.TabMenu {
+    display: flex;
+    justify-content: center;
+    background-color: primary2;
+    box-sizing: border-box;
+    border-radius: 5px;
+    padding: 1px;
+}
+
+.Tab {
+    background-color: primary1;
+    color: black;
+    font-size: large;
+    width: 25%;
+    box-sizing: border-box;
+    border-width: 1px;
+    border-color: primary2;
+    border-style: solid;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 2px;
+    padding-right: 2px;
+    flex: 1;
+}
+
+.Tab p {
+    color: black;
+    margin: 0px;
+
+}
+
+.ActiveTab {
+    background-color: primary2;
+    color: tertiary1;
+    min-width: 40%;
+}
+
+.ActiveTab p {
+    color: tertiary1;
+
+}
+

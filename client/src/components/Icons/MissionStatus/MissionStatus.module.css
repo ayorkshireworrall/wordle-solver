@@ -1,0 +1,20 @@
+.InProgress {
+    background-color: #000000;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+.Failed {
+    background-color: #ff0000;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+.Success {
+    background-color: #00ff00;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}

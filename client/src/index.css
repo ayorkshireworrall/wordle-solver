@@ -1,0 +1,130 @@
+@value primary1: #00ccff;
+@value primary2: #007E9B;
+@value tertiary1: #ffd900;
+@value secondary: #ebebeb;
+@value danger1: #ff0000;
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+input {
+    display: inline;
+    text-align: center;
+    height: 40px;
+    width: 70%;
+    font-size: 20px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+input[type="submit"] {
+    background: linear-gradient(#00ccff, #007E9B);
+    width: 40%;
+    min-width: 150px;
+    height: 60px;
+    color: white;
+    cursor: pointer;
+}
+
+textarea {
+    width: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+    box-sizing: border-box;
+    padding: 10px;
+    border-color: #eee;
+}
+
+.BtnDanger {
+    background: linear-gradient(#ff0000, #dd0000) !important;
+}
+
+.Boxing {
+    text-align: center;
+    margin: 0 auto;
+    background: linear-gradient(#00ccff, #007E9B);
+    width: 40%;
+    min-width: 150px;
+    height: 60px;
+    color: white;
+    cursor: not-allowed;
+}
+
+.Error {
+    display: block;
+    text-align: center;
+    height: 30px;
+    width: 100%;
+    font-size: 12px;
+    color: red;
+    margin-left: 0;
+}
+
+.PageContainer {
+    margin: 20px auto;
+    box-sizing: border-box;
+    text-align: center;
+    padding:20px;
+    width: 80%;
+    min-width: 500px;
+    max-width: 720px;
+    box-shadow: 0 2px 4px #ccc;
+}
+
+.PageContainer h1 {
+    margin-bottom: 20px;
+}
+
+.PageContainer h2 {
+    margin-bottom: 20px;
+}
+
+span {
+    text-align: left;
+    color: #ffd900;
+    width: 100%;
+    display: inline-block;
+    margin-left: 15%;
+}
+
+.AppForm h1 {
+    margin-bottom: 20px;
+}
+
+@media(max-width:500px) {
+    input {
+        width: 100%;
+        height: 30px;
+        font-size: 18px;
+    }
+
+    span {
+        height: 20px;
+        margin-left: 0;
+    }
+
+    input[type="submit"] {
+        height: 50px;
+    }
+
+    .Boxing {
+        height: 50px;
+    }
+
+    .PageContainer {
+        width: 100%;
+        min-width: 0;
+    }
+}
