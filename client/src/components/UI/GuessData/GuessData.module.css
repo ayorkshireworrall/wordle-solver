@@ -1,14 +1,20 @@
+@value colors: "../../../css/colors.css";
+@value primary1, primary2, tertiary1 from colors;
+
 .GuessData {
+    border-radius: 5px;
     padding:5px;
     background-color: #ccc;
-    border-radius: 5px;
-    border-color: #ccc;
+    border-color: primary1;
     border-width: 1px;
     border-style: solid;
 }
 
 .Expanded {
     background-color: #ccc;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-bottom: none;
 }
 
 .Details {
@@ -35,4 +41,8 @@
 
 .AllDetails {
     background-color: #eeeeee;
+    border-color: primary1;
+    border-width: 1px;
+    border-style: solid;
+    border-top-style: none;
 }
