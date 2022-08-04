@@ -1,5 +1,5 @@
-@value primary1: #00ccff;
-@value primary2: #007E9B;
+@value primary1: #0d015e;
+@value primary2: #190599;
 @value tertiary1: #ffd900;
 @value secondary: #ebebeb;
 @value danger1: #ff0000;
@@ -29,7 +29,7 @@ input {
 }
 
 input[type="submit"] {
-    background: linear-gradient(#00ccff, #007E9B);
+    background: linear-gradient(#0d015e, #190599);
     width: 40%;
     min-width: 150px;
     height: 60px;
@@ -91,13 +91,13 @@ textarea {
     margin-bottom: 20px;
 }
 
-span {
+/* span {
     text-align: left;
     color: #ffd900;
     width: 100%;
     display: inline-block;
     margin-left: 15%;
-}
+} */
 
 .AppForm h1 {
     margin-bottom: 20px;

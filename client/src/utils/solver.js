@@ -281,7 +281,7 @@ function solveWordBruteForce2(target, verbose, criteria) {
 //     solveWordBruteForce2(targetSolution, true)
 // }
 
-export function recommendedWordByMaxScoring(currentSolutions, attempt, criteria) {
+export function recommendedWordByMaxScoring(currentSolutions, attempt, info, criteria) {
     if (!criteria) {
         criteria = 'mean'
     }
@@ -289,7 +289,7 @@ export function recommendedWordByMaxScoring(currentSolutions, attempt, criteria)
         return 'raise'
     } else {
         let nextGuess
-        let scoredInput = scoreInputsBruteForce(allInputs, currentSolutions)[criteria]
+        let scoredInput = scoreInputsBruteForce(allInputs, currentSolutions, info)[criteria]
         if (currentSolutions.length > 1 && scoredInput) {
             nextGuess = scoredInput.word
         } else {

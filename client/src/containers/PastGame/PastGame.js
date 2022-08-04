@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { solutions, getMappingValues, allowedWords, allInputs, valuesMap, addWord2, scoreWordBruteForce2, scoreInputsBruteForce, getSolutionsAfterWord, recommendedWordByMaxScoring} from '../../utils/solver';
+import GuessData from '../../components/UI/GuessData/GuessData';
 
 
 const PastGame = props => {
@@ -13,14 +14,11 @@ const PastGame = props => {
         GUESS6: ''
     })
 
-    const [guessData, setGuessData] = useState({
-        GUESS1: {postGuessSolutions: [], suggestedWord: '', postSuggestedSolutions: [], suggestedScore: {}, guessScore: {}},
-        GUESS2: {postGuessSolutions: [], suggestedWord: '', postSuggestedSolutions: [], suggestedScore: {}, guessScore: {}},
-        GUESS3: {postGuessSolutions: [], suggestedWord: '', postSuggestedSolutions: [], suggestedScore: {}, guessScore: {}},
-        GUESS4: {postGuessSolutions: [], suggestedWord: '', postSuggestedSolutions: [], suggestedScore: {}, guessScore: {}},
-        GUESS5: {postGuessSolutions: [], suggestedWord: '', postSuggestedSolutions: [], suggestedScore: {}, guessScore: {}},
-        GUESS6: {postGuessSolutions: [], suggestedWord: '', postSuggestedSolutions: [], suggestedScore: {}, guessScore: {}}
+    const [expandedGuesses, setExpandedGuesses] = useState({
+
     })
+
+    const [guessData, setGuessData] = useState()
 
     const InputTypeEnum = {
         ACTUAL: 'ACTUAL',
@@ -49,9 +47,9 @@ const PastGame = props => {
         let info = []
         let postGuessSolutions = [...solutions]
         let postSuggestedSolutions = [...solutions]
-        let currentAttempt = 1
         let totalAttempts = -1 // will populate using formValues so need to ignore the actual solution
         let guessEvaluations = {...guessData}
+        let expanded = {...expandedGuesses}
 
         for (let value in formValues) {
             totalAttempts++
@@ -61,23 +59,31 @@ const PastGame = props => {
         }
         for (let i = 0; i < totalAttempts; i++) {
             let guess = formValues['GUESS' + (i+1)]
-            console.log('Guess: ', guess)
+            expanded['GUESS' + (i+1)] = false
             let targetWord = formValues[InputTypeEnum.ACTUAL]
             let guessScore = scoreWordBruteForce2(guess, postGuessSolutions, info)
-            console.log(guessScore)
             postGuessSolutions = getSolutionsAfterWord(guess, postGuessSolutions, targetWord, info)
-            let suggestedWord = recommendedWordByMaxScoring(postSuggestedSolutions, currentAttempt, 'max')
+            let suggestedWord = recommendedWordByMaxScoring(postSuggestedSolutions, i+1, info)
             let suggestedScore = scoreWordBruteForce2(suggestedWord, postSuggestedSolutions, targetWord, info)
             postSuggestedSolutions = getSolutionsAfterWord(suggestedWord, postSuggestedSolutions, targetWord, info)
             guessEvaluations['GUESS' + (i+1)] = {postGuessSolutions, suggestedWord, postSuggestedSolutions, suggestedScore, guessScore}
             addWord2(guess, getMappingValues(guess, targetWord), info, postGuessSolutions, totalAttempts)
+            // currentAttempt++
             if (guess === targetWord) {
                 break;
             }
+            
         }
 
-        console.log(guessEvaluations)
         setGuessData(guessEvaluations)
+        setExpandedGuesses(expanded)
+    }
+
+    const toggleGuessExpansion = field => {
+        console.log('Clicked')
+        let copy = {...expandedGuesses}
+        copy[field] = !expandedGuesses[field]
+        setExpandedGuesses(copy)
     }
 
 
@@ -108,17 +114,15 @@ const PastGame = props => {
 
             <input type="submit" value="Evaluate" onClick={() => {evaluateGame()}}/>
 
-            {/* <br/>
-            {inputFields.map(field => {
-                return <p>{field} : {formValues[field]}</p>
-            })} */}
-
             <br/>
             {inputFields.map(field => {
                 if (field === InputTypeEnum.ACTUAL) {
                     return null
                 }
-                return <p> postGuessSolutions: {guessData[field].postGuessSolutions.toString()}, suggestedWord: {guessData[field].suggestedWord}, postSuggestedSolutions: {guessData[field].postSuggestedSolutions.toString()}, suggestedScore: {guessData[field].suggestedScore.mean}, guessScore: {guessData[field].guessScore.mean}</p>
+                if (!guessData || !guessData[field]) {
+                    return null
+                }
+                return <GuessData key={field} field={field} actualGuess={formValues[field]} data={guessData[field]} handleClick={() => toggleGuessExpansion(field)} expanded={expandedGuesses[field]}></GuessData>
             })}
             
 
