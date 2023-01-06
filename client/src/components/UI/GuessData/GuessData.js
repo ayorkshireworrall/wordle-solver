@@ -22,11 +22,15 @@ const GuessData = props => {
         setSuggestedExpanded(!suggestedExpanded)
     }
 
+    const guessSD = (guessScore.mean - postGuessSolutions.length) / guessScore.standardDeviation
+    const suggestedSD = (suggestedScore.mean - postSuggestedSolutions.length) / suggestedScore.standardDeviation
+
     const playerGuess = (
         <div className={classes.Stats}>
             <p><b>Mean Solutions Remaining After Guess:</b> {Math.round(guessScore.mean * 100) /  100}</p>
             <p><b>Max Solutions Remaining After Guess:</b> {guessScore.max}</p>
-            <p><b>Remaining Solutions After Guess:</b> {postGuessSolutions.join(', ')}</p>
+            {/* <p><b>Standard Deviations (positive is lucky, negative is unlucky):</b> {guessSD} ({guessSD * 100 / guessScore.mean}%)</p> */}
+            <p><b>Remaining Solutions After Guess ({postGuessSolutions.length}):</b> {postGuessSolutions.join(', ')}</p>
         </div>
     )
 
@@ -35,7 +39,8 @@ const GuessData = props => {
             <p><b>Suggested Word:</b> {suggestedWord}</p>
             <p><b>Mean Solutions Remaining After Suggested Word:</b> {Math.round(suggestedScore.mean * 100) / 100}</p>
             <p><b>Max Solutions Remaining After Suggested Word:</b> {suggestedScore.max}</p>
-            <p><b>Remaining Solutions After Suggested Word:</b> {postSuggestedSolutions.join(', ')}</p>
+            {/* <p><b>Standard Deviations (positive is lucky, negative is unlucky):</b> {suggestedSD} ({suggestedSD * 100 / suggestedScore.mean}%)</p> */}
+            <p><b>Remaining Solutions After Suggested Word ({postSuggestedSolutions.length}):</b> {postSuggestedSolutions.join(', ')}</p>
         </div>
     )
 

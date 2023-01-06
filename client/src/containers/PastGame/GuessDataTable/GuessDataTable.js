@@ -15,6 +15,7 @@ const GuessDataTable = props => {
             <div className={classes.Title}>
                 Guess Data
             </div>
+            {!guessData && (<div className={classes.Empty}>No Data</div>)}
             {inputFields.map(field => {
                 if (field === InputTypeEnum.ACTUAL) {
                     return null
