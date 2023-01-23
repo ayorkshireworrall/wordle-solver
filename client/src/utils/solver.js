@@ -86,7 +86,12 @@ export function scoreWordBruteForce2(word, solutionSet, info) {
     let max = Math.max(...remainingAnswerCount)
     //TODO see if we can include variance calculations here in order to quantify "luck" 
     // (might not be representative because number of remaining answers doesn't necessarily reflect how easy it is to separate them)
-    return {mean, max}
+    let sumOfSquares = 0
+    for (let entry of remainingAnswerCount) {
+        sumOfSquares += Math.pow(entry - mean, 2)
+    }
+    let standardDeviation = Math.sqrt(sumOfSquares / remainingAnswerCount.length)
+    return {mean, max, standardDeviation}
 }
 
 /**
@@ -94,12 +99,31 @@ export function scoreWordBruteForce2(word, solutionSet, info) {
  * @param {String[]} inputs Words that might be inputted as guesses that require scoring
  * @param {String[]} solutionSet The remaining solution words
  */
-export function scoreInputsBruteForce(inputs, solutionSet, info) {
+export function scoreInputsBruteForce(inputs, solutionSet, info, progressCallback) {
     let bestScoreMean = solutionSet.length
     let bestInputMean = inputs[0]
     let bestScoreMax = solutionSet.length
     let bestInputMax = inputs[0]
-    for (let input of inputs) {
+    console.log(solutionSet.length)
+
+    let batch = 1
+    if (solutionSet.length < 30) {
+        batch = 10
+    } else if (solutionSet.length < 90) {
+        batch = 5
+    } 
+    const batchSize = Math.round(inputs.length * batch / 100)
+    let currentBatchCount = 0
+    let batchesComplete = 0;
+    for (let i = 0; i < inputs.length; i++) {
+        if (!!progressCallback && ++currentBatchCount == batchSize) {
+            progressCallback(++batchesComplete * batch)
+            currentBatchCount = 0
+        }
+        let input = inputs[i]
+
+
+    // for (let input of inputs) {
         let score = scoreWordBruteForce2(input, solutionSet, info)
         if (score['mean'] < bestScoreMean || solutionSet.includes(input) && score['mean'] === bestScoreMean ) {
             bestInputMean = input
@@ -281,7 +305,7 @@ function solveWordBruteForce2(target, verbose, criteria) {
 //     solveWordBruteForce2(targetSolution, true)
 // }
 
-export function recommendedWordByMaxScoring(currentSolutions, attempt, info, criteria) {
+export function recommendedWordByMaxScoring(currentSolutions, attempt, info, criteria, progressCallback) {
     if (!criteria) {
         criteria = 'mean'
     }
@@ -289,7 +313,7 @@ export function recommendedWordByMaxScoring(currentSolutions, attempt, info, cri
         return 'raise'
     } else {
         let nextGuess
-        let scoredInput = scoreInputsBruteForce(allInputs, currentSolutions, info)[criteria]
+        let scoredInput = scoreInputsBruteForce(allInputs, currentSolutions, info, progressCallback)[criteria]
         if (currentSolutions.length > 1 && scoredInput) {
             nextGuess = scoredInput.word
         } else {

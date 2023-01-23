@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { solutions, getMappingValues, allowedWords, allInputs, valuesMap, addWord2, scoreWordBruteForce2, scoreInputsBruteForce, getSolutionsAfterWord, recommendedWordByMaxScoring} from '../../utils/solver';
+import React, { useReducer, useState } from 'react';
+import { solutions, getMappingValues, allowedWords, allInputs, valuesMap, addWord2, scoreWordBruteForce2, scoreInputsBruteForce, getSolutionsAfterWord, recommendedWordByMaxScoring } from '../../utils/solver';
 import GuessForm from './GuessForm/GuessForm';
 import GuessDataTable from './GuessDataTable/GuessDataTable';
+import LoadingMask from '../../components/UI/LoadingMask/LoadingMask';
+import SimpleDiv from '../../components/UI/SimpleDiv/SimpleDiv';
 
 export const InputTypeEnum = {
     ACTUAL: 'ACTUAL',
@@ -14,42 +16,77 @@ export const InputTypeEnum = {
 }
 
 const PastGame = props => {
-    const [formValues, setFormValues] = useState({
-        ACTUAL: 'tryst',
-        GUESS1: 'raise',
-        GUESS2: 'burst',
-        GUESS3: 'frost',
-        GUESS4: 'tryst',
+    const initialFormState = {
+        ACTUAL: '',
+        GUESS1: '',
+        GUESS2: '',
+        GUESS3: '',
+        GUESS4: '',
         GUESS5: '',
         GUESS6: ''
-    })
+    }
+    const [formValues, setFormValues] = useState(initialFormState)
 
-    const [expandedGuesses, setExpandedGuesses] = useState({
+    const [expandedGuesses, setExpandedGuesses] = useState({})
 
-    })
+    const [disableInputs, setDisableInputs] = useState(false)
+
+    const [loading, setLoading] = useState(false)
 
     const [guessData, setGuessData] = useState()
 
-    
+    const [percentageComplete, setPercentageComplete] = useState(0)
+
+    const [workingGuess, setWorkingGuess] = useState("")
+
+    const [, forceRerender] = useReducer(x => x + 1, 0)
+
+
     const handleInputChange = (event, item) => {
-        let newForm = {...formValues}
-        newForm[item] = event.target.value
+        let newForm = { ...formValues }
+        newForm[item] = event.target.value.toLowerCase()
         setFormValues(newForm)
-        console.log(formValues)
     }
-    
+
     let inputFields = []
     for (let field in InputTypeEnum) {
         inputFields.push(field)
     }
 
-    const evaluateGame = () => {
+    const handleEvaluate = async () => {
+        setLoading(true)
+        setTimeout(() => {
+            evaluateGame()
+            setLoading(false)
+        }, 0)
+    }
+
+    let tempPerc = 0;
+
+    const logPercentage = (percentage, guess) => {
+        console.log(`Has worked through ${percentage}% of possible inputs for guess ${guess}`)
+        setPercentageComplete(percentage)
+        setWorkingGuess(guess)
+        console.log('tempPerc: ', tempPerc)
+        tempPerc = percentage
+        forceRerender()
+        console.log('Percentage complete according to state: ', percentageComplete)
+    }
+
+    const checkPercentage = () => {
+        console.log('=================tempPerc check: ', tempPerc)
+        setPercentageComplete(tempPerc)
+    }
+
+    const evaluateGame = async () => {
+        setDisableInputs(true)
+        setGuessData({})
         let info = []
         let postGuessSolutions = [...solutions]
         let postSuggestedSolutions = [...solutions]
-        let totalAttempts = -1 // will populate using formValues so need to ignore the actual solution
-        let guessEvaluations = {...guessData}
-        let expanded = {...expandedGuesses}
+        let totalAttempts = -1 // will populate using formValues so need to ignore the "actual" solution
+        let guessEvaluations = {}
+        let expanded = { ...expandedGuesses }
 
         for (let value in formValues) {
             totalAttempts++
@@ -58,21 +95,20 @@ const PastGame = props => {
             }
         }
         for (let i = 0; i < totalAttempts; i++) {
-            let guess = formValues['GUESS' + (i+1)]
-            expanded['GUESS' + (i+1)] = false
+            let guess = formValues['GUESS' + (i + 1)]
+            expanded['GUESS' + (i + 1)] = false
             let targetWord = formValues[InputTypeEnum.ACTUAL]
             let guessScore = scoreWordBruteForce2(guess, postGuessSolutions, info)
+            let suggestedWord = recommendedWordByMaxScoring(postGuessSolutions, i + 1, info, 'mean', percentage => { logPercentage(percentage, guess) })
+            let suggestedScore = scoreWordBruteForce2(suggestedWord, postGuessSolutions, targetWord, info)
             postGuessSolutions = getSolutionsAfterWord(guess, postGuessSolutions, targetWord, info)
-            let suggestedWord = recommendedWordByMaxScoring(postSuggestedSolutions, i+1, info)
-            let suggestedScore = scoreWordBruteForce2(suggestedWord, postSuggestedSolutions, targetWord, info)
-            postSuggestedSolutions = getSolutionsAfterWord(suggestedWord, postSuggestedSolutions, targetWord, info)
-            guessEvaluations['GUESS' + (i+1)] = {postGuessSolutions, suggestedWord, postSuggestedSolutions, suggestedScore, guessScore}
+            postSuggestedSolutions = getSolutionsAfterWord(suggestedWord, postGuessSolutions, targetWord, info)
+            guessEvaluations['GUESS' + (i + 1)] = { postGuessSolutions, suggestedWord, postSuggestedSolutions, suggestedScore, guessScore }
             addWord2(guess, getMappingValues(guess, targetWord), info, postGuessSolutions, totalAttempts)
-            // currentAttempt++
             if (guess === targetWord) {
                 break;
             }
-            
+
         }
 
         setGuessData(guessEvaluations)
@@ -80,18 +116,29 @@ const PastGame = props => {
     }
 
     const toggleGuessExpansion = field => {
-        console.log('Clicked')
-        let copy = {...expandedGuesses}
+        let copy = { ...expandedGuesses }
         copy[field] = !expandedGuesses[field]
         setExpandedGuesses(copy)
+    }
+
+    const reset = () => {
+        setFormValues(initialFormState)
+        setGuessData()
+        setExpandedGuesses({})
+        setDisableInputs(false)
+        setPercentageComplete(0)
+        setWorkingGuess('')
+        setLoading(false)
     }
 
 
     return (
         <React.Fragment>
-            <GuessForm handleInputChange={handleInputChange} formValues={formValues} evaluateGame={evaluateGame}/>
-            <br/>
-            <GuessDataTable fields={inputFields} data={guessData} formValues={formValues} toggleExpanded={toggleGuessExpansion} expandedGuesses={expandedGuesses}/>
+            <GuessForm handleInputChange={handleInputChange} formValues={formValues} evaluateGame={handleEvaluate} disabled={disableInputs} reset={reset} />
+            <br />
+            <GuessDataTable fields={inputFields} data={guessData} formValues={formValues} toggleExpanded={toggleGuessExpansion} expandedGuesses={expandedGuesses} />
+            <LoadingMask show={loading} stage={workingGuess} complete={percentageComplete} />
+            <div>{percentageComplete}</div>
         </React.Fragment>
     )
 }

@@ -5,8 +5,8 @@
     padding: 15px;
     text-align: center;
     font-size: 16px;
-    font-weight: 600; 
-    background: linear-gradient(primary1, primary2);;
+    font-weight: 600;
+    background: linear-gradient(primary1, primary2);
     color: white;
 }
 
@@ -19,4 +19,11 @@
     border-width: 1px;
     border-color: primary1;
     background-color: primary1;
+}
+
+.Empty {
+    background-color: #ccc;
+    text-align: center;
+    padding: 20px;
+    border-radius: 5px;
 }

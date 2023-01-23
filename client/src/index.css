@@ -20,21 +20,30 @@ code {
 
 input {
     display: inline;
-    text-align: center;
+    text-align: left;
     height: 40px;
-    width: 70%;
-    font-size: 20px;
+    margin-left: 10%;
+    width: 80%;
+    font-size: 1em;
     border: 1px solid #ccc;
     border-radius: 3px;
+    padding-left: 10px;
+    text-transform: uppercase;
 }
 
 input[type="submit"] {
     background: linear-gradient(#0d015e, #190599);
-    width: 40%;
+    margin-left: 25%;
+    font-size: 1.2em;
+    margin-top: 20px;
+    width: 50%;
+    text-align: center;
     min-width: 150px;
     height: 60px;
     color: white;
     cursor: pointer;
+    border-radius: 5px;
+    text-transform: none;
 }
 
 textarea {
@@ -60,6 +69,10 @@ textarea {
     height: 60px;
     color: white;
     cursor: not-allowed;
+}
+
+.center {
+    text-align: center;
 }
 
 .Error {
@@ -103,12 +116,22 @@ textarea {
     margin-bottom: 20px;
 }
 
+.InputLabel {
+    display: block;
+    font-size: 1.17em;
+    font-weight: bold;
+    margin-block-start: 1em;
+    margin-block-end: 0.25em;
+    margin-left: 10%;
+    text-align: left;
+}
+
 @media(max-width:500px) {
-    input {
+    /* input {
         width: 100%;
         height: 30px;
         font-size: 18px;
-    }
+    } */
 
     span {
         height: 20px;
@@ -119,6 +142,10 @@ textarea {
         height: 50px;
     }
 
+    input[type="submit"]:disabled {
+        background: grey;
+    }
+
     .Boxing {
         height: 50px;
     }
@@ -127,4 +154,9 @@ textarea {
         width: 100%;
         min-width: 0;
     }
+
+    /* .InputLabel {
+        text-align: center;
+        margin-left: 0%;
+    } */
 }
