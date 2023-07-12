@@ -97,12 +97,13 @@ const PastGame = props => {
         for (let i = 0; i < totalAttempts; i++) {
             let guess = formValues['GUESS' + (i + 1)]
             expanded['GUESS' + (i + 1)] = false
+            let postGuessSolutionsCopy = [...postGuessSolutions]
             let targetWord = formValues[InputTypeEnum.ACTUAL]
             let guessScore = scoreWordBruteForce2(guess, postGuessSolutions, info)
-            let suggestedWord = recommendedWordByMaxScoring(postGuessSolutions, i + 1, info, 'mean', percentage => { logPercentage(percentage, guess) })
-            let suggestedScore = scoreWordBruteForce2(suggestedWord, postGuessSolutions, targetWord, info)
+            let suggestedWord = recommendedWordByMaxScoring(postGuessSolutionsCopy, i + 1, info, 'mean', percentage => { logPercentage(percentage, guess) })
+            let suggestedScore = scoreWordBruteForce2(suggestedWord, postGuessSolutionsCopy, targetWord, info)
             postGuessSolutions = getSolutionsAfterWord(guess, postGuessSolutions, targetWord, info)
-            postSuggestedSolutions = getSolutionsAfterWord(suggestedWord, postGuessSolutions, targetWord, info)
+            postSuggestedSolutions = getSolutionsAfterWord(suggestedWord, postGuessSolutionsCopy, targetWord, info)
             guessEvaluations['GUESS' + (i + 1)] = { postGuessSolutions, suggestedWord, postSuggestedSolutions, suggestedScore, guessScore }
             addWord2(guess, getMappingValues(guess, targetWord), info, postGuessSolutions, totalAttempts)
             if (guess === targetWord) {
